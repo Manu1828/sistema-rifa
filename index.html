@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Registro de Boletos de Rifa</title>
+    <style>
+        :root {
+            --primary-color: #4a6baf;
+            --secondary-color: #f39c12;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #7a93cc);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input[type="text"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 107, 175, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3a5998;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success-color);
+            color: #27ae60;
+        }
+        
+        .error {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--danger-color);
+            color: #c0392b;
+        }
+        
+        .winner-section {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .winner-info {
+            margin-top: 20px;
+            background-color: rgba(243, 156, 18, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed var(--secondary-color);
+        }
+        
+        .winner-ticket {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 15px 0;
+        }
+        
+        .winner-name {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+        
+        .price-info {
+            background-color: rgba(74, 107, 175, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .price-tag {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .admin-access {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .admin-button {
+            background-color: var(--dark-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .admin-button:hover {
+            background-color: #1a2633;
+        }
+
+        .admin-panel {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .sync-status {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--success-color);
+        }
+
+        .offline-warning {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--danger-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--danger-color);
+        }
+
+        .loading {
+            background-color: rgba(243, 156, 18, 0.1);
+            border: 1px solid var(--secondary-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (min-width: 768px) {
+            .main-content {
+                flex-direction: row;
+            }
+            
+            .registration-section, .winner-section {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Sistema de Registro de Boletos de Rifa</h1>
+            <p>Registra tu boleto para participar y conoce al ganador del sorteo</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Estado de sincronización -->
+        <div id="sync-status" class="loading">
+            🔄 Conectando con la base de datos...
+        </div>
+
+        <div class="main-content">
+            <div class="registration-section card">
+                <h2>Registrar Boleto</h2>
+                <div class="price-info">
+                    <p>Precio del boleto: <span class="price-tag">$50</span></p>
+                    <p>Registro en línea: <span class="price-tag">+$25</span></p>
+                    <p><strong>Total con registro:</strong> <span class="price-tag">$75</span></p>
+                </div>
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label for="buyer-name">Nombre completo:</label>
+                        <input type="text" id="buyer-name" placeholder="Ingresa tu nombre completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticket-number">Número de boleto:</label>
+                        <input type="text" id="ticket-number" placeholder="Ingresa el número de boleto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone-number">Número de teléfono:</label>
+                        <input type="tel" id="phone-number" placeholder="Ingresa tu número de teléfono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="seller-password">Contraseña del vendedor:</label>
+                        <input type="password" id="seller-password" placeholder="Ingresa la contraseña del vendedor" required>
+                    </div>
+                    <button type="submit" id="submit-btn">Registrar Boleto</button>
+                </form>
+                <div id="registration-result" class="result"></div>
+            </div>
+            
+            <div class="card winner-section">
+                <h2>Ganador del Sorteo</h2>
+                <div class="winner-info">
+                    <p>Estado del sorteo:</p>
+                    <div class="winner-ticket">PENDIENTE</div>
+                    <p>La rifa aún no se ha llevado a cabo</p>
+                    <div class="winner-name">Se anunciará al ganador próximamente</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de administración -->
+        <div class="admin-access">
+            <button id="admin-toggle" class="admin-button">Panel de Administración</button>
+        </div>
+
+        <div id="admin-panel" class="admin-panel card">
+            <h2>Panel de Administración</h2>
+            
+            <div class="form-group">
+                <label for="admin-password-input">Contraseña de administrador:</label>
+                <input type="password" id="admin-password-input" placeholder="Ingresa la contraseña">
+                <button id="admin-login" style="margin-top: 10px;">Acceder</button>
+            </div>
+
+            <div id="admin-content" style="display: none;">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-registrations">0</div>
+                        <div class="stat-label">Total Registros</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-sellers">0</div>
+                        <div class="stat-label">Vendedores Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-revenue">$0</div>
+                        <div class="stat-label">Ingresos Totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="today-registrations">0</div>
+                        <div class="stat-label">Registros Hoy</div>
+                    </div>
+                </div>
+
+                <table id="registrations-table">
+                    <thead>
+                        <tr>
+                            <th>Boleto</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Vendedor</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registrations-body">
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <button id="export-data" style="background-color: var(--success-color);">Exportar Datos</button>
+                    <button id="clear-data" style="background-color: var(--danger-color); margin-left: 10px;">Limpiar Datos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Sistema de Registro de Boletos de Rifa. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.0/firebase-firestore-compat.min.js"></script>
+
+    <script>
+        // 🔥 CONFIGURACIÓN DE FIREBASE
+        // ⚠️ REEMPLAZA ESTA CONFIGURACIÓN CON LA TUYA
+        const firebaseConfig = {
+  apiKey: "AIzaSyC-Y4Db7GhDxXeCu7tq4zX91AqlVfpmezA",
+  authDomain: "rifa-boletos.firebaseapp.com",
+  projectId: "rifa-boletos",
+  storageBucket: "rifa-boletos.firebasestorage.app",
+  messagingSenderId: "196018665803",
+  appId: "1:196018665803:web:34f86466118edff20910ce",
+  measurementId: "G-NWZPCXW713"
+};
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Base de datos de vendedores y sus contraseñas
+        const sellers = {
+            "132456": "nombre",
+            "Navyseals06": "Manuel",
+            "Papirri3367": "Fernando",
+            "Hcrack234": "Hugo",
+            "Soy1004davo": "David",
+            "ladelaradio123": "Luna",
+            "barandalitos123": "Andrea",
+            "Aleee789": "Alexis",
+            "19andy05": "Citlaly",
+            "Mylove": "Jacobo",
+            "789067890": "Melanie",
+            "Maquuen_95#11": "Francisco",
+            "Gato¡ 1234$#": "Monserrat",
+            "LFJC5724": "Angel",
+            "Isaa200": "Isabella",
+            "rob134": "Abril",
+            "1812": "Vianey",
+            "crz4735": "Jesus Emanuel",
+            "toshikana": "Ana Karen",
+            "golipanista": "Tania",
+            "15070809": "Christopher",
+            "Tanya23ttg": "Tanya",
+            "san1545657834": "Zayra",
+            "premio22": "Vendedor22",
+            "sorteo23": "Vendedor23",
+            "ganador24": "Vendedor24",
+            "ticket25": "Vendedor25",
+            "venta26": "Vendedor26",
+            "rifa27": "Vendedor27",
+            "sorteador28": "Vendedor28",
+            "boleto29": "Vendedor29",
+            "final30": "Vendedor30"
+        };
+        
+        // Contraseña de administrador
+        const adminPassword = "admin123";
+
+        // Variables globales
+        let isConnected = false;
+
+        // ✅ Verificar conexión con Firebase
+        function checkFirebaseConnection() {
+            db.collection('test').limit(1).get()
+                .then(() => {
+                    isConnected = true;
+                    updateSyncStatus(true);
+                })
+                .catch((error) => {
+                    console.error("Error conectando con Firebase:", error);
+                    isConnected = false;
+                    updateSyncStatus(false);
+                });
+        }
+
+        // Actualizar estado de sincronización
+        function updateSyncStatus(connected) {
+            const statusElement = document.getElementById('sync-status');
+            if (connected) {
+                statusElement.className = 'sync-status';
+                statusElement.innerHTML = '✅ Conectado a la base de datos - Los registros se comparten en tiempo real';
+            } else {
+                statusElement.className = 'offline-warning';
+                statusElement.innerHTML = '❌ Error de conexión - Verifica tu internet y recarga la página';
+            }
+        }
+
+        // 📝 Agregar registro a Firebase
+        async function addRegistration(registration) {
+            if (!isConnected) {
+                throw new Error('Sin conexión a la base de datos');
+            }
+
+            try {
+                // Verificar si el boleto ya existe
+                const existingTicket = await db.collection('registrations')
+                    .where('ticketNumber', '==', registration.ticketNumber)
+                    .get();
+
+                if (!existingTicket.empty) {
+                    throw new Error('Este número de boleto ya está registrado');
+                }
+
+                // Agregar timestamp
+                registration.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                registration.registrationDate = new Date().toLocaleString('es-MX');
+
+                // Guardar en Firebase
+                const docRef = await db.collection('registrations').add(registration);
+                registration.id = docRef.id;
+                
+                return registration;
+            } catch (error) {
+                console.error("Error guardando registro:", error);
+                throw error;
+            }
+        }
+
+        // 📊 Obtener todos los registros
+        async function getAllRegistrations() {
+            if (!isConnected) return [];
+
+            try {
+                const snapshot = await db.collection('registrations')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                return snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } catch (error) {
+                console.error("Error obteniendo registros:", error);
+                return [];
+            }
+        }
+
+        // 🗑️ Limpiar todos los registros
+        async function clearAllRegistrations() {
+            if (!isConnected) {
+                throw new Error('Sin conexión a la base de datos');
+            }
+
+            try {
+                const snapshot = await db.collection('registrations').get();
+                const batch = db.batch();
+                
+                snapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                
+                await batch.commit();
+            } catch (error) {
+                console.error("Error limpiando registros:", error);
+                throw error;
+            }
+        }
+
+        // 📝 Manejar el envío del formulario de registro
+        document.getElementById('registration-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const buyerName = document.getElementById('buyer-name').value.trim();
+            const ticketNumber = document.getElementById('ticket-number').value.trim();
+            const phoneNumber = document.getElementById('phone-number').value.trim();
+            const sellerPassword = document.getElementById('seller-password').value.trim();
+            
+            const resultElement = document.getElementById('registration-result');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Deshabilitar botón y mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registrando...';
+            
+            resultElement.style.display = 'block';
+            
+            // Verificar si la contraseña del vendedor es válida
+            if (!sellers[sellerPassword]) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `
+                    <h3>❌ Error de autenticación</h3>
+                    <p>La contraseña del vendedor no es válida. Por favor, verifica e intenta nuevamente.</p>
+                `;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Registrar Boleto';
+                return;
+            }
+
+            try {
+                const registration = {
+                    buyerName,
+                    ticketNumber,
+                    phoneNumber,
+                    sellerName: sellers[sellerPassword],
+                    sellerPassword // Guardamos la contraseña para identificar al vendedor
+                };
+
+                // Agregar a Firebase
+                await addRegistration(registration);
+
+                // Mostrar mensaje de éxito
+                resultElement.className = 'result success';
+                resultElement.innerHTML = `
+                    <h3>✅ ¡Registro Exitoso!</h3>
+                    <p><strong>Boleto:</strong> ${ticketNumber}</p>
+                    <p><strong>Nombre:</strong> ${buyerName}</p>
+                    <p><strong>Vendedor:</strong> ${registration.sellerName}</p>
+                    <p>🌐 Registro guardado en la base de datos compartida</p>
+                `;
+
+                // Limpiar formulario
+                document.getElementById('registration-form').reset();
+
+                // Actualizar panel de admin si está abierto
+                if (document.getElementById('admin-content').style.display !== 'none') {
+                    updateAdminPanel();
+                }
+
+            } catch (error) {
+                resultElement.className = 'result error';
+                resultElement.innerHTML = `
+                    <h3>❌ Error de registro</h3>
+                    <p>${error.message}</p>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Registrar Boleto';
+            }
+        });
+
+        // Toggle panel de administración
+        document.getElementById('admin-toggle').addEventListener('click', function() {
+            const panel = document.getElementById('admin-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Login de administrador
+        document.getElementById('admin-login').addEventListener('click', function() {
+            const password = document.getElementById('admin-password-input').value;
+            if (password === adminPassword) {
+                document.getElementById('admin-content').style.display = 'block';
+                updateAdminPanel();
+            } else {
+                alert('❌ Contraseña incorrecta');
+            }
+        });
+
+        // 📊 Actualizar panel de administración
+        async function updateAdminPanel() {
+            try {
+                const registrations = await getAllRegistrations();
+                
+                // Actualizar estadísticas
+                document.getElementById('total-registrations').textContent = registrations.length;
+                document.getElementById('total-revenue').textContent = '$' + (registrations.length * 75);
+                
+                // Vendedores únicos
+                const uniqueSellers = new Set(registrations.map(r => r.sellerName));
+                document.getElementById('total-sellers').textContent = uniqueSellers.size;
+                
+                // Registros de hoy
+                const today = new Date().toDateString();
+                const todayRegs = registrations.filter(r => {
+                    const regDate = r.timestamp ? r.timestamp.toDate() : new Date(r.registrationDate);
+                    return regDate.toDateString() === today;
+                });
+                document.getElementById('today-registrations').textContent = todayRegs.length;
+                
+                // Actualizar tabla
+                const tbody = document.getElementById('registrations-body');
+                tbody.innerHTML = '';
+                
+                registrations.forEach(reg => {
+                    const row = tbody.insertRow();
+                    const date = reg.timestamp ? reg.timestamp.toDate().toLocaleString('es-MX') : reg.registrationDate;
+                    row.innerHTML = `
+                        <td>${reg.ticketNumber}</td>
+                        <td>${reg.buyerName}</td>
+                        <td>${reg.phoneNumber}</td>
+                        <td>${reg.sellerName}</td>
+                        <td>${date}</td>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error("Error actualizando panel admin:", error);
+            }
+        }
+
+        // Exportar datos
+        document.getElementById('export-data').addEventListener('click', async function() {
+            try {
+                const registrations = await getAllRegistrations();
+                const data = JSON.stringify(registrations, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `registros_rifa_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('❌ Error exportando datos: ' + error.message);
+            }
+        });
+
+        // Limpiar datos
+        document.getElementById('clear-data').addEventListener('click', async function() {
+            if (confirm('⚠️ ¿Estás seguro de que deseas eliminar TODOS los registros? Esta acción no se puede deshacer.')) {
+                try {
+                    await clearAllRegistrations();
+                    updateAdminPanel();
+                    alert('✅ Todos los registros han sido eliminados');
+                } catch (error) {
+                    alert('❌ Error eliminando registros: ' + error.message);
+                }
+            }
+        });
+
+        // 🚀 Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar conexión con Firebase
+            checkFirebaseConnection();
+            
+            // Verificar conexión cada 30 segundos
+            setInterval(checkFirebaseConnection, 30000);
+        });
+    </script>
+</body>
+</html>
